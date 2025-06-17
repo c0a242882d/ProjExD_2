@@ -14,6 +14,7 @@ DELTA={ #移動量辞書
 }
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+
 def check_bound(rct: pg.Rect) -> tuple[bool,bool]:
     """
     引数：こうかとんRectまたはばくだんRect 
@@ -148,7 +149,7 @@ def main():
         #     sum_mv[0] += 5
         kk_rct.move_ip(sum_mv)
         if check_bound(kk_rct) != (True,True):
-            kk_rct.move_ip(-sum_mv[0],-sum_mv[1]) #移動をなかったことにする      
+            kk_rct.move_ip(-sum_mv[0],-sum_mv[1])  #移動をなかったことにする      
         kk_img = get_kk_img(tuple(sum_mv), kk_imgs) 
         screen.blit(kk_img, kk_rct)
         avx = vx*bb_accs[min(tmr//500, 9)]
