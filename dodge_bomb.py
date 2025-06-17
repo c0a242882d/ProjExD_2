@@ -1,7 +1,9 @@
 import os
 import random
 import sys
+import time
 import pygame as pg
+
 
 WIDTH, HEIGHT = 1100, 650
 DELTA = {  # 移動量辞書
@@ -27,6 +29,27 @@ def check_bound(rct: pg.Rect) -> tuple[bool, bool]:
     return yoko, tate  # 横方向，縦方向の画面内判定結果を返す
 
 
+def gameover(screen: pg.Surface) -> None:
+    cryk_img =pg.transform.rotozoom(pg.image.load("fig/8.png"), 0, 1.0) #泣いてるこうかとん
+    cryk_rct = cryk_img.get_rect()
+    cryk_rct.center = 757, 261
+    cryk_img2 =pg.transform.rotozoom(pg.image.load("fig/8.png"), 0, 1.0) #泣いてるこうかとん2匹目
+    cryk_rct2 = cryk_img2.get_rect()
+    cryk_rct2.center = 357, 261
+    gameover_img = pg.Surface((1100, 650)) #空のsurfaceをつくる
+    pg.draw.rect(gameover_img, (0,0,0), (1100,650,1100,650)) #暗い画面をつくる
+    gameover_img.set_alpha((128))  
+    gameover_rct=gameover_img.get_rect() #暗い画面のRectを取得
+    fonto = pg.font.Font(None, 80)
+    txt = fonto.render("GAMEOVER",True, (255, 255, 255))
+    screen.blit(gameover_img, gameover_rct)
+    screen.blit(cryk_img, cryk_rct)
+    screen.blit(cryk_img2, cryk_rct2)
+    screen.blit(txt, [400, 250])
+    pg.display.update()
+    time.sleep(5)
+
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -47,23 +70,30 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
+        if kk_rct.colliderect(bb_rct):  # こうかとんRectと爆弾Rectの衝突判定
+            gameover(screen)
+            # display.update()
+            return
         screen.blit(bg_img, [0, 0]) 
 
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
-        if key_lst[pg.K_UP]:
-            sum_mv[1] -= 5
-        if key_lst[pg.K_DOWN]:
-            sum_mv[1] += 5
-        if key_lst[pg.K_LEFT]:
-            sum_mv[0] -= 5
-        if key_lst[pg.K_RIGHT]:
-            sum_mv[0] += 5
+        for key, mv in DELTA.items():
+            if key_lst[key]:
+                sum_mv[0] += mv[0]
+                sum_mv[1] += mv[1]
+        # if key_lst[pg.K_UP]:
+        #     sum_mv[1] -= 5
+        # if key_lst[pg.K_DOWN]:
+        #     sum_mv[1] += 5
+        # if key_lst[pg.K_LEFT]:
+        #     sum_mv[0] -= 5
+        # if key_lst[pg.K_RIGHT]:
+        #     sum_mv[0] += 5
         kk_rct.move_ip(sum_mv)
         if check_bound(kk_rct) != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])  # 移動をなかったことにする
         screen.blit(kk_img, kk_rct)
-
         bb_rct.move_ip(vx, vy)  # 爆弾の移動
         yoko, tate = check_bound(bb_rct)
         if not yoko:  # 横方向にはみ出ていたら
